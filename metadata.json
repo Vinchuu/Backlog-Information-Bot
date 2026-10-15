@@ -1,0 +1,6 @@
+{
+  "name": "BacklogBot - Academic Intelligence & Exam Assistant",
+  "description": "AI-powered academic assistant for engineering students: check backlogs, analyze ATKT eligibility, generate study roadmaps, and query official university regulations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

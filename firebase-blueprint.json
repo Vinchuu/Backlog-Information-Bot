@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with academic registration info",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 120 },
+        "university": { "type": "string", "maxLength": 120 },
+        "branch": { "type": "string", "maxLength": 100 },
+        "currentSemester": { "type": "number" },
+        "currentYear": { "type": "string", "maxLength": 10 },
+        "prn": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["email", "university", "branch"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "Academic subject record and grading status",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string", "maxLength": 30 },
+        "name": { "type": "string", "maxLength": 120 },
+        "semester": { "type": "number" },
+        "credits": { "type": "number" },
+        "head": { "type": "string", "maxLength": 30 },
+        "inSemMarks": { "type": "number" },
+        "maxInSem": { "type": "number" },
+        "endSemMarks": { "type": "number" },
+        "maxEndSem": { "type": "number" },
+        "totalMarks": { "type": "number" },
+        "maxTotal": { "type": "number" },
+        "grade": { "type": "string", "maxLength": 10 },
+        "status": { "type": "string", "maxLength": 30 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["code", "name", "semester", "credits", "head", "status", "userId"]
+    },
+    "ChatSession": {
+      "title": "ChatSession",
+      "description": "Student conversation session thread",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 150 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "userId"]
+    },
+    "SavedResponse": {
+      "title": "SavedResponse",
+      "description": "Bookmarked academic advice or regulatory breakdown",
+      "type": "object",
+      "properties": {
+        "content": { "type": "string", "maxLength": 10000 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["content", "userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Public profile and academic config for student"
+    },
+    "/users/{userId}/subjects/{subjectId}": {
+      "schema": { "$ref": "#/entities/Subject" },
+      "description": "Individual subject grading and backlog records"
+    },
+    "/users/{userId}/chats/{chatId}": {
+      "schema": { "$ref": "#/entities/ChatSession" },
+      "description": "Academic chat consultation threads"
+    },
+    "/users/{userId}/savedResponses/{responseId}": {
+      "schema": { "$ref": "#/entities/SavedResponse" },
+      "description": "Bookmarked regulatory responses"
+    }
+  }
+}

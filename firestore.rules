@@ -1,0 +1,90 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny catch-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Connection testing endpoint
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // User Profile
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidId(userId)
+        && incoming().keys().hasAll(['email', 'university', 'branch'])
+        && incoming().email is string && incoming().email.size() <= 120
+        && incoming().university is string && incoming().university.size() <= 120
+        && incoming().branch is string && incoming().branch.size() <= 100;
+      allow update: if isOwner(userId)
+        && incoming().email == existing().email;
+      allow delete: if isOwner(userId);
+
+      // Student Subjects Subcollection
+      match /subjects/{subjectId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(subjectId)
+          && incoming().keys().hasAll(['code', 'name', 'semester', 'credits', 'head', 'status', 'userId'])
+          && incoming().userId == userId
+          && incoming().code is string && incoming().code.size() <= 30
+          && incoming().name is string && incoming().name.size() <= 120
+          && incoming().credits is number
+          && incoming().semester is number;
+        allow update: if isOwner(userId)
+          && incoming().userId == existing().userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Chat Sessions Subcollection
+      match /chats/{chatId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(chatId)
+          && incoming().keys().hasAll(['title', 'userId'])
+          && incoming().userId == userId
+          && incoming().title is string && incoming().title.size() <= 150;
+        allow update: if isOwner(userId)
+          && incoming().userId == existing().userId;
+        allow delete: if isOwner(userId);
+      }
+
+      // Saved Responses Subcollection
+      match /savedResponses/{responseId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(responseId)
+          && incoming().keys().hasAll(['content', 'userId'])
+          && incoming().userId == userId
+          && incoming().content is string && incoming().content.size() <= 10000;
+        allow update: if isOwner(userId)
+          && incoming().userId == existing().userId;
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
